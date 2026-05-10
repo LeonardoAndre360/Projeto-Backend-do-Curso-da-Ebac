@@ -1,0 +1,20 @@
+[project]
+name = "projeto-backend-básico"
+version = "0.1.0"
+description = "Projeto para aprendizado do curso para estar pronto para o mercado de trabalho"
+authors = [
+    {name = "Leonardo André"}
+]
+requires-python = ">=3.14"
+dependencies = [
+    "fastapi[standard] (>=0.136.1,<0.137.0)",
+    "requests (>=2.33.1,<3.0.0)",
+    "uvicorn (>=0.46.0,<0.47.0)"
+]
+
+
+[build-system]
+requires = ["poetry-core>=2.0.0,<3.0.0"]
+build-backend = "poetry.core.masonry.api"
+[tool.poetry]
+package-mode = false
