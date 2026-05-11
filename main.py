@@ -14,11 +14,33 @@
 # Update
 # Delete
 
+# Vamos acessar nosso ENDPOINT
+# E vamos acessar os PATH's desse
+
+# Path ou Rota
+# Query Strings
+
+# 200 300 400 500
+
+# Fábrica -> Logista -> Consumidor 
+
+# Documentação Swagger -> Documentar os endpoints da nossa aplicação (da nossa API)
+
+# Olha, acessa minha documentação swagger nesse endpoint -> http://endpointdelivros/docs/
+
 from fastapi import FastAPI, HTTPException
 from pydantic import BaseModel
 from typing import Optional
 
-app = FastAPI()
+app = FastAPI(
+    title="API de Livros.",
+    description="API para gerenciar catálogos de livros.",
+    version="1.0.0",
+    contact={
+        "name":"Leonardo André",
+        "email":"Leonardoandre3600@gmail.com"
+    }
+)
 
 meus_livrozinhos = {}
 
@@ -27,7 +49,7 @@ class Livro(BaseModel):
     autor_livro: str
     ano_livro: int
 
-app.get("/")
+@app.get("/")
 def hello_world():
     return {"Hello": "Word"}
 
