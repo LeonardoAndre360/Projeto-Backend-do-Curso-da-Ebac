@@ -48,7 +48,7 @@ def post_livros(id_livro: int, livro: Livro):
     if id_livro in meus_livrozinhos:
         raise HTTPException(status_code=400, detail="Este livro já existe!")
     else:
-        meus_livrozinhos[id_livro] = livro.dict()
+        meus_livrozinhos[id_livro] = livro.model_dump()
         return {"message": "O Livro foi criado com sucesso!"}
     
 @app.put("/atualiza/{id_livro}")
@@ -57,8 +57,10 @@ def put_livros(id_livro: int, livro: Livro):
     if not meu_livro:
         raise HTTPException(status_code=404, detail="Este livro não foi encontrado!")
     else:
-        meu_livro[id_livro] = livro.dict()
-
+        # Eu jogo essa antiga informação dentro do meu antigo dicionário (que é o "meus_livrozinhos")
+        # E não dentro da referência do antigo dicionário
+        # Antigo dicionário != Referência do antigo dicionário
+        meus_livrozinhos[id_livro] = livro.model_dump()
         return {"message": "As informações do seu livro foram autalizadas com sucesso!"}
     
 @app.delete("/deletar/{id_livro}")
