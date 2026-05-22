@@ -42,12 +42,13 @@ app = FastAPI(
     }
 )
 
-meus_livrozinhos = {}
+meus_livrozinhos = []
 
 class Livro(BaseModel):
     nome_livro: str
     autor_livro: str
     ano_livro: int
+    lido: bool = False
 
 @app.get("/")
 def hello_world():
@@ -66,29 +67,24 @@ def get_livros():
 # ano de lançamento do livro
 
 @app.post("/adiciona")
-def post_livros(id_livro: int, livro: Livro):
-    if id_livro in meus_livrozinhos:
-        raise HTTPException(status_code=400, detail="Este livro já existe!")
-    else:
-        meus_livrozinhos[id_livro] = livro.model_dump()
-        return {"message": "O Livro foi criado com sucesso!"}
+def post_livros(livro: Livro):
+        meus_livrozinhos.append(livro)
+        return {"message": "O Livro foi adicionado com sucesso!"}
     
-@app.put("/atualiza/{id_livro}")
-def put_livros(id_livro: int, livro: Livro):
-    meu_livro = meus_livrozinhos.get(id_livro)
-    if not meu_livro:
-        raise HTTPException(status_code=404, detail="Este livro não foi encontrado!")
-    else:
-        # Eu jogo essa antiga informação dentro do meu antigo dicionário (que é o "meus_livrozinhos")
-        # E não dentro da referência do antigo dicionário
-        # Antigo dicionário != Referência do antigo dicionário
-        meus_livrozinhos[id_livro] = livro.model_dump()
-        return {"message": "As informações do seu livro foram autalizadas com sucesso!"}
+@app.put("/atualiza/{nome_livro}")
+def put_livros(nome_livro: str, livro_novo: Livro):
+    for livro_atual in meus_livrozinhos:
+        if livro_atual.nome_livro == nome_livro:
+            posicao = meus_livrozinhos.index(livro_atual)
+            meus_livrozinhos[posicao] = livro_novo
+            meus_livrozinhos = livro_novo
+            return {"message": "O livro foi atualizado com sucesso"}
+    raise HTTPException(status_code=404, detail="Este livro não foi encontrado!")    
     
-@app.delete("/deletar/{id_livro}")
-def delete_livros(id_livro: int):
-    if id_livro not in meus_livrozinhos:
-        raise HTTPException(status_code=404, detail="Esse livro não foi encontrado!")
-    else:
-        del meus_livrozinhos[id_livro]
-        return {"message": "Seu livro foi deletado com sucesso!"}
+@app.delete("/deletar/{nome_livro}")
+def delete_livros(nome_livro: str):
+    for livro_atual in meus_livrozinhos:
+        if livro_atual.nome_livro == nome_livro:
+            meus_livrozinhos.remove(livro_atual)
+            return {"message": "O livro foi deletado com sucesso"}
+    raise HTTPException(status_code=404, detail="Este livro não foi encontrado!")
