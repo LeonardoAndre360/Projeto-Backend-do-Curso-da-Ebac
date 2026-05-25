@@ -81,13 +81,15 @@ def get_livros(page: int = 10, limit: int = 10, credentials: HTTPBasicCredential
     
     if not meus_livrozinhos:
         return{"message": "Não existe nenhum livro!!"}
+    
+    livros_ordenados = sorted(meus_livrozinhos.items(), key=lambda x: x(0))
 
     start = (page - 1) * limit
     end = start + limit
 
     livros_paginados = [
         {"id": id_livro, "nome_livro": livro_data["nome_data"], "autor_livro": livro_data["autor_livro"], "ano_livro": livro_data["ano_livro"]}
-        for id_livro, livro_data in list(meus_livrozinhos.items())[start:end]
+        for id_livro, livro_data in livros_ordenados[start:end]
     ]
 
     return {
