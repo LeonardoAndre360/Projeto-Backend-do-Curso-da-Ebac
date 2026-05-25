@@ -77,7 +77,6 @@ def put_livros(nome_livro: str, livro_novo: Livro):
         if livro_atual.nome_livro == nome_livro:
             posicao = meus_livrozinhos.index(livro_atual)
             meus_livrozinhos[posicao] = livro_novo
-            meus_livrozinhos = livro_novo
             return {"message": "O livro foi atualizado com sucesso"}
     raise HTTPException(status_code=404, detail="Este livro não foi encontrado!")    
     
