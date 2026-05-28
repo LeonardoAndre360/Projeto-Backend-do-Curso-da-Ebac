@@ -75,20 +75,28 @@ def hello_world():
     return {"Hello": "Word"}
 
 @app.get("/livros")
-def get_livros(page: int = 10, limit: int = 10, credentials: HTTPBasicCredentials = Depends(autenticar_meu_usuario)):
+def get_livros(page: int = 1, limit: int = 10, credentials: HTTPBasicCredentials = Depends(autenticar_meu_usuario), ordem: Optional[str] = "id"):
+    campos_validos = ["id", "nome", "ano"]
+    if ordem not in campos_validos:
+        raise HTTPException(status_code=400, detail="Campo de ordenação inválido! Use id, nome ou ano.")
     if page < 1 or limit < 1:
         raise HTTPException(status_code=400, detail="Page ou limit estão com valores invalidos!!")
     
     if not meus_livrozinhos:
         return{"message": "Não existe nenhum livro!!"}
     
-    livros_ordenados = sorted(meus_livrozinhos.items(), key=lambda x: x(0))
+    if ordem == "nome":
+        livros_ordenados = sorted(meus_livrozinhos.items(), key=lambda x: x[1]["nome_livro"])
+    elif ordem == "ano":
+        livros_ordenados = sorted(meus_livrozinhos.items(), key=lambda x: x[1]["ano_livro"])
+    else:
+        livros_ordenados = sorted(meus_livrozinhos.items(), key=lambda x: x[0])
 
     start = (page - 1) * limit
     end = start + limit
 
     livros_paginados = [
-        {"id": id_livro, "nome_livro": livro_data["nome_data"], "autor_livro": livro_data["autor_livro"], "ano_livro": livro_data["ano_livro"]}
+        {"id": id_livro, "nome_livro": livro_data["nome_livro"], "autor_livro": livro_data["autor_livro"], "ano_livro": livro_data["ano_livro"]}
         for id_livro, livro_data in livros_ordenados[start:end]
     ]
 
