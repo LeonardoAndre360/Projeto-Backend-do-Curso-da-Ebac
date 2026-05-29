@@ -75,12 +75,12 @@ def hello_world():
     return {"Hello": "Word"}
 
 @app.get("/livros")
-def get_livros(page: int = 1, limit: int = 10, credentials: HTTPBasicCredentials = Depends(autenticar_meu_usuario), ordem: Optional[str] = "id"):
+def get_livros(page: int = 1, size: int = 10, credentials: HTTPBasicCredentials = Depends(autenticar_meu_usuario), ordem: Optional[str] = "id"):
     campos_validos = ["id", "nome", "ano"]
     if ordem not in campos_validos:
         raise HTTPException(status_code=400, detail="Campo de ordenação inválido! Use id, nome ou ano.")
-    if page < 1 or limit < 1:
-        raise HTTPException(status_code=400, detail="Page ou limit estão com valores invalidos!!")
+    if page < 1 or size < 1:
+        raise HTTPException(status_code=400, detail="Page ou size estão com valores invalidos!!")
     
     if not meus_livrozinhos:
         return{"message": "Não existe nenhum livro!!"}
@@ -92,8 +92,8 @@ def get_livros(page: int = 1, limit: int = 10, credentials: HTTPBasicCredentials
     else:
         livros_ordenados = sorted(meus_livrozinhos.items(), key=lambda x: x[0])
 
-    start = (page - 1) * limit
-    end = start + limit
+    start = (page - 1) * size
+    end = start + size
 
     livros_paginados = [
         {"id": id_livro, "nome_livro": livro_data["nome_livro"], "autor_livro": livro_data["autor_livro"], "ano_livro": livro_data["ano_livro"]}
@@ -102,7 +102,7 @@ def get_livros(page: int = 1, limit: int = 10, credentials: HTTPBasicCredentials
 
     return {
         "page": page,
-        "limit": limit,
+        "size": size,
         "total": len(meus_livrozinhos),
         "livros": livros_paginados
     }
