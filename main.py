@@ -62,15 +62,27 @@ security = HTTPBasic()
 
 meus_livrozinhos = {}
 
-class Livro(Base):
+class LivroDB(Base):
     __tablename__ = "Livros"
     id = Column(Integer, primary_key=True, index=True)
     nome_livro = Column(String, index=True)
     autor_livro = Column(String, index=True)
     ano_livro = Column(Integer)
 
+class Livro(BaseModel):
+    nome_livro: str
+    autor_livro: str
+    ano_livro: int
 
 Base.metadata.create_all(bind=engine)
+
+
+def sessão_db():
+    db = SessionLocal()
+    try:
+        yield db
+    finally:
+        db.close()
 
 def autenticar_meu_usuario(credentials: HTTPBasicCredentials = Depends(security)):
     is_username_correct = secrets.compare_digest(credentials.username, MEU_USUARIO)
@@ -89,28 +101,27 @@ def hello_world():
     return {"Hello": "Word"}
 
 @app.get("/livros")
-def get_livros(page: int = 10, limit: int = 10, credentials: HTTPBasicCredentials = Depends(autenticar_meu_usuario)):
+def get_livros(page: int = 10, limit: int = 10, db: Session = Depends(sessão_db) , credentials: HTTPBasicCredentials = Depends(autenticar_meu_usuario)):
     if page < 1 or limit < 1:
         raise HTTPException(status_code=400, detail="Page ou limit estão com valores invalidos!!")
     
-    if not meus_livrozinhos:
+    livros = db.query(LivroDB).offset((page - 1) * limit).limit(limit).all()
+
+    if not livros:
         return{"message": "Não existe nenhum livro!!"}
-    
-    livros_ordenados = sorted(meus_livrozinhos.items(), key=lambda x: x(0))
 
-    start = (page - 1) * limit
-    end = start + limit
+    #livros_paginados = [
+    #   {"id": id_livro, "nome_livro": livro_data["nome_data"], "autor_livro": livro_data["autor_livro"], "ano_livro": livro_data["ano_livro"]}
+    #    for id_livro, livro_data in livros_ordenados[start:end]
+    #]
 
-    livros_paginados = [
-        {"id": id_livro, "nome_livro": livro_data["nome_data"], "autor_livro": livro_data["autor_livro"], "ano_livro": livro_data["ano_livro"]}
-        for id_livro, livro_data in livros_ordenados[start:end]
-    ]
+    total_livros = db.query(LivroDB).count()
 
     return {
         "page": page,
         "limit": limit,
-        "total": len(meus_livrozinhos),
-        "livros": livros_paginados
+        "total": total_livros,
+        "livros": [{"id": livro.id, "nome_livro": livro.nome_livro, "autor_livro": livro.autor_livro, "ano_livro": livro.ano_livro} for livro in livros]
     }
 
 # id do livro
