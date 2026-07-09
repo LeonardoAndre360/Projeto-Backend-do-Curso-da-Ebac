@@ -36,7 +36,7 @@ import secrets
 
 from sqlalchemy import create_engine, Column, Integer, String
 from sqlalchemy.ext.declarative import declarative_base
-from sqlalchemy.orm import sessionmaker
+from sqlalchemy.orm import sessionmaker, Session
 
 DATABASE_URL = "sqlite:///./livros.db"
 
@@ -110,11 +110,6 @@ def get_livros(page: int = 10, limit: int = 10, db: Session = Depends(sessão_db
     if not livros:
         return{"message": "Não existe nenhum livro!!"}
 
-    #livros_paginados = [
-    #   {"id": id_livro, "nome_livro": livro_data["nome_data"], "autor_livro": livro_data["autor_livro"], "ano_livro": livro_data["ano_livro"]}
-    #    for id_livro, livro_data in livros_ordenados[start:end]
-    #]
-
     total_livros = db.query(LivroDB).count()
 
     return {
@@ -130,12 +125,17 @@ def get_livros(page: int = 10, limit: int = 10, db: Session = Depends(sessão_db
 # ano de lançamento do livro
 
 @app.post("/adiciona")
-def post_livros(id_livro: int, livro: Livro, credentials: HTTPBasicCredentials = Depends(autenticar_meu_usuario)):
-    if id_livro in meus_livrozinhos:
-        raise HTTPException(status_code=400, detail="Este livro já existe!")
-    else:
-        meus_livrozinhos[id_livro] = livro.model_dump()
-        return {"message": "O Livro foi criado com sucesso!"}
+def post_livros(livro: Livro, db: Session = Depends(sessão_db) ,credentials: HTTPBasicCredentials = Depends(autenticar_meu_usuario)):
+    db_livro = db.query(LivroDB).filter(LivroDB.nome_livro == livro.nome_livro, LivroDB.autor_livro == livro.autor_livro).first()
+    if db_livro:
+        raise HTTPException(status_code=400, detail="Este livro já existe dentro do banco de dados!!!")
+    
+    novo_livro = LivroDB(nome_livro=livro.nome_livro, autor_livro=livro.autor_livro, ano_livro=livro.ano_livro)
+    db.add(novo_livro)
+    db.commit()
+    db.refresh(novo_livro)
+
+    return {"message": "O livro foi adicionado com sucesso!"}
     
 @app.put("/atualiza/{id_livro}")
 def put_livros(id_livro: int, livro: Livro, credentials: HTTPBasicCredentials = Depends(autenticar_meu_usuario)):
