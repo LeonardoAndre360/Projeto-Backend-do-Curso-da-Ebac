@@ -151,9 +151,13 @@ def put_livros(id_livro: int, livro: Livro,  db: Session = Depends(sessao_db) ,c
     db.refresh(db_livro)
     
 @app.delete("/deletar/{id_livro}")
-def delete_livros(id_livro: int, credentials: HTTPBasicCredentials = Depends(autenticar_meu_usuario)):
-    if id_livro not in meus_livrozinhos:
-        raise HTTPException(status_code=404, detail="Esse livro não foi encontrado!")
-    else:
-        del meus_livrozinhos[id_livro]
-        return {"message": "Seu livro foi deletado com sucesso!"}
+def delete_livros(id_livro: int, db: Session = Depends(sessao_db) ,credentials: HTTPBasicCredentials = Depends(autenticar_meu_usuario)):
+    db_livro = db.query(LivroDB).filter(LivroDB.id == id_livro).firt()
+
+    if not db_livro:
+        raise HTTPException(status_code=404, detail="Este livro não foi encontrado em seu banco de dados!!!")
+    
+    db.delete(db_livro)
+    db.commit()
+
+    return {"message": "Seu livro foi deletado com sucesso!"}
