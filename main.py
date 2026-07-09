@@ -77,7 +77,7 @@ class Livro(BaseModel):
 Base.metadata.create_all(bind=engine)
 
 
-def sessão_db():
+def sessao_db():
     db = SessionLocal()
     try:
         yield db
@@ -101,7 +101,7 @@ def hello_world():
     return {"Hello": "Word"}
 
 @app.get("/livros")
-def get_livros(page: int = 10, limit: int = 10, db: Session = Depends(sessão_db) , credentials: HTTPBasicCredentials = Depends(autenticar_meu_usuario)):
+def get_livros(page: int = 10, limit: int = 10, db: Session = Depends(sessao_db) , credentials: HTTPBasicCredentials = Depends(autenticar_meu_usuario)):
     if page < 1 or limit < 1:
         raise HTTPException(status_code=400, detail="Page ou limit estão com valores invalidos!!")
     
@@ -125,7 +125,7 @@ def get_livros(page: int = 10, limit: int = 10, db: Session = Depends(sessão_db
 # ano de lançamento do livro
 
 @app.post("/adiciona")
-def post_livros(livro: Livro, db: Session = Depends(sessão_db) ,credentials: HTTPBasicCredentials = Depends(autenticar_meu_usuario)):
+def post_livros(livro: Livro, db: Session = Depends(sessao_db) ,credentials: HTTPBasicCredentials = Depends(autenticar_meu_usuario)):
     db_livro = db.query(LivroDB).filter(LivroDB.nome_livro == livro.nome_livro, LivroDB.autor_livro == livro.autor_livro).first()
     if db_livro:
         raise HTTPException(status_code=400, detail="Este livro já existe dentro do banco de dados!!!")
@@ -138,16 +138,17 @@ def post_livros(livro: Livro, db: Session = Depends(sessão_db) ,credentials: HT
     return {"message": "O livro foi adicionado com sucesso!"}
     
 @app.put("/atualiza/{id_livro}")
-def put_livros(id_livro: int, livro: Livro, credentials: HTTPBasicCredentials = Depends(autenticar_meu_usuario)):
-    meu_livro = meus_livrozinhos.get(id_livro)
-    if not meu_livro:
-        raise HTTPException(status_code=404, detail="Este livro não foi encontrado!")
-    else:
-        # Eu jogo essa antiga informação dentro do meu antigo dicionário (que é o "meus_livrozinhos")
-        # E não dentro da referência do antigo dicionário
-        # Antigo dicionário != Referência do antigo dicionário
-        meus_livrozinhos[id_livro] = livro.model_dump()
-        return {"message": "As informações do seu livro foram autalizadas com sucesso!"}
+def put_livros(id_livro: int, livro: Livro,  db: Session = Depends(sessao_db) ,credentials: HTTPBasicCredentials = Depends(autenticar_meu_usuario)):
+    db_livro = db.query(LivroDB).filter(LivroDB.id_livro == id_livro).first()
+    if not db_livro:
+        raise HTTPException(status_code=404, detail="Este livro não foi encontrado em seu banco de dados!")
+    
+    db_livro.nome_livro = livro.nome_livro
+    db_livro.autor_livro = livro.autor_livro
+    db_livro.ano_livro = livro.ano_livro
+    
+    db.commit()
+    db.refresh(db_livro)
     
 @app.delete("/deletar/{id_livro}")
 def delete_livros(id_livro: int, credentials: HTTPBasicCredentials = Depends(autenticar_meu_usuario)):
