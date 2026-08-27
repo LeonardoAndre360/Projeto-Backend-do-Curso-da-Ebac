@@ -33,12 +33,16 @@ from fastapi.security import HTTPBasic, HTTPBasicCredentials
 from pydantic import BaseModel
 from typing import Optional
 import secrets
+import os
+from dotenv import load_dotenv
 
 from sqlalchemy import create_engine, Column, Integer, String
 from sqlalchemy.ext.declarative import declarative_base
 from sqlalchemy.orm import sessionmaker, Session
 
-DATABASE_URL = "sqlite:///./livros.db"
+load_dotenv()
+
+DATABASE_URL = os.getenv("DATABASE_URL")
 
 engine = create_engine(DATABASE_URL, connect_args={"check_same_thread": False})
 SessionLocal = sessionmaker(autocommit=False, autoflush=False, bind=engine)
@@ -54,8 +58,12 @@ app = FastAPI(
     }
 )
 
-MEU_USUARIO = "admin"
-MINHA_SENHA = "admin"
+MEU_USUARIO = os.getenv("MEU_USUARIO")
+MINHA_SENHA = os.getenv("MINHA_SENHA")
+
+engine = create_engine(DATABASE_URL, connect_args={"check_same_thread": False})
+SessionLocal = sessionmaker(autocommit=False, autoflush=False, bind=engine)
+Base = declarative_base()
 
 security = HTTPBasic()
 
