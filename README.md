@@ -18,4 +18,4 @@ Certifique-se de ter o [Docker](https://www.docker.com/) e o [Docker Compose](ht
 
 1. **Clone o repositório:**
    Abra o seu terminal e rode o comando abaixo para baixar o código:
-   git clone
+   git clone https://github.com/LeonardoAndre360/Projeto-Backend-do-Curso-da-Ebac.git
