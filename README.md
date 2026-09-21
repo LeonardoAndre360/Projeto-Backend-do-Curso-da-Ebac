@@ -19,3 +19,14 @@ Certifique-se de ter o [Docker](https://www.docker.com/) e o [Docker Compose](ht
 1. **Clone o repositório:**
    Abra o seu terminal e rode o comando abaixo para baixar o código:
    git clone https://github.com/LeonardoAndre360/Projeto-Backend-do-Curso-da-Ebac.git
+
+### 2. Configurações Necessárias (Variáveis de Ambiente)
+Antes de subir a aplicação, é necessário configurar o banco de dados.
+1. Na raiz do projeto, crie um arquivo chamado `.env`.
+2. Adicione a seguinte linha dentro do arquivo:
+`DATABASE_URL=sqlite:///./livros.db`
+
+### 3. Build e Execução com Docker Compose
+Para construir a imagem Docker e subir o container da aplicação em segundo plano, execute:
+```bash
+podman compose up --build -d

@@ -1,9 +1,9 @@
 [project]
-name = "projeto-backend-básico"
+name = "projeto-backend-basico"
 version = "0.1.0"
 description = "Projeto para aprendizado do curso para estar pronto para o mercado de trabalho"
 authors = [
-    {name = "Leonardo André"}
+    {name = "Leonardo Andre"}
 ]
 requires-python = ">=3.14"
 dependencies = [
