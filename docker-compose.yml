@@ -19,10 +19,12 @@ services:
       - "6379:6379"
 
   celery:
-    build:
+    build: .
     container_name: livros-celery
-    command: ["poetry", "run", "celery", "-A", "celery_app:celery_app", "wolker", "-Q", "livros", "--loglevel=info" ]
+    command: ["poetry", "run", "celery", "-A", "celery_app:celery_app", "worker", "-Q", "livros", "--loglevel=info" ]
     volumes:
-      -.:/app
+      - "${PWD}:/app"
     depends_on:
       - redis
+    env_file:
+      - .env

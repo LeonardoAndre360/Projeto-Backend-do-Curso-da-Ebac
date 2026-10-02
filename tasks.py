@@ -1,9 +1,18 @@
-def minha_tarefa1():
-    return "tarefa 1"
+from celery_app import celery_app
+import time
 
-def minha_tarefa2():
-    return "tarefa 2"
+@celery_app.task(name="task_somar", bind=True)
+def somar(self, a, b):
+    time.sleep(3)
+    return a + b
 
-# 1 - Vamos criar algumas tarefas
-# 2 - Vamos rodar essas tarefas em background usando o Celery   
-# 3 - Vamos jogar essas tarefas para o Redis usando-o como um sistema de fila
+@celery_app.task(name="task_fatorial", bind=True)
+def fatorial(self, n):
+    time.sleep(3)
+    if n < 0:
+        raise ValueError("O fatorial não está definido para números negativos.")
+
+    resultado = 1
+    for i in range(2, n + 1):
+        resultado *= i
+    return resultado
