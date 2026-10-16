@@ -29,3 +29,7 @@ pythonpath = ["."]
 
 [tool.poetry]
 package-mode = false
+[dependency-groups]
+dev = [
+    "pytest-mock (>=3.16.0,<4.0.0)"
+]
