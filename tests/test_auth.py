@@ -21,6 +21,7 @@ def test_autenticacao_usuario_com_sucesso():
     )
 
     assert response.status_code == 200
+    assert "Livros" in response.json()
 
 def test_autenticacao_usuario_com_erro():
     response = client.get(
