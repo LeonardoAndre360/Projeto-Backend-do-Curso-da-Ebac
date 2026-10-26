@@ -27,6 +27,5 @@ jobs:
       - name: Instalar dependências do projeto
         run: poetry install --no-root --no-interaction
 
-      # Requisito 8: Executar os testes automatizados com Pytest via Poetry
       - name: Rodar testes automatizados com Pytest
         run: poetry run pytest
